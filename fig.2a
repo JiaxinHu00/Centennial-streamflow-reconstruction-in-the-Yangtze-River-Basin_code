@@ -1,0 +1,502 @@
+rm(list = ls())
+
+
+###  zmd
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/zhimenda时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "ZMD")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+zhimenda_dis<-p
+
+
+
+####       ln
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/luning时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "LN")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+luning_dis<-p
+
+
+####       ct
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/cuntan时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "CT")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+cuntan_dis<-p
+
+
+####       yc
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/yichang时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "YC")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+yichang_dis<-p
+####       hk
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/hankou时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "HK")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+hankou_dis<-p
+#读取时间序列
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/datong时间序列.RData")
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps <- seq(start_date, end_date, by = "month")
+datestamps <- as.Date(timestamps)
+# t<-as.data.frame(as.numeric(datestamps,dis_all$`df[, 1]`))
+
+start_date <- as.Date("1901-01-01")
+end_date <- as.Date("2021-12-31")
+timestamps_y <- seq(start_date, end_date, by = "year")
+datestamps_y <- as.Date(timestamps_y )
+
+
+values <- dis_all$`df[, 1]`
+
+ser <- data.frame(Date = timestamps, Value = values)
+library(zoo)
+moving_avg <- rollmean(x = ser$Value, k =12 , fill = NA)
+library(ggplot2)
+df <- data.frame(time = ser$Date, value = ser$Value, moving_avg = moving_avg)
+ggplot(data = df) +
+  geom_line(aes(x = time, y = value, color = "Original")) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average")) +
+  labs(x = "Time", y = "Value") +
+  scale_color_manual(values = c("black", "cyan"), guide = FALSE)
+library(dplyr)
+###计算年均值
+yearly_avg <- ser %>%
+  group_by(year = lubridate::year(Date)) %>%
+  summarize(avg_value = mean(Value))
+#五年移动平均
+yearly_avg_moving_avg <- rollmean(x = yearly_avg$avg_value, k =5 , fill = NA)
+library(ggplot2)
+yearly_df <- data.frame(time = datestamps_y, value = yearly_avg$avg_value, moving_avg = yearly_avg_moving_avg)
+###绘制年均值图
+per_year<-ggplot(data = yearly_df ) +
+  geom_line(aes(x = time, y = value, color = "Original"),size=1.2) +
+  geom_line(aes(x = time, y = moving_avg, color = "Moving Average"),size=1.5) +
+  labs(x = "Time", y = "Discharge") +
+  scale_color_manual(values = c("#FFDAB9", "black"), guide = FALSE)
+per_5_year<-per_year+
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(color = "black",size = 1),
+    panel.border = element_rect(color = "black", linetype = "solid",fill = NA)
+  )
+per_5_year
+
+
+data<-yearly_avg$avg_value
+# 计算mean+-sd的阈值
+sd_all<-sd(data)
+mean_all<-mean(data)
+threshold_dh<-mean_all + c(-1, 1) * sd_all
+your_value<-mean_all
+# 添加极端干湿阈值线
+p<-per_5_year + geom_hline(yintercept = threshold_dh[1], color = "orange", linetype = "solid",size=0.9) +
+  geom_hline(yintercept = threshold_dh[2], color = "#87CEEB", linetype = "solid",size=0.9) + 
+  geom_hline(yintercept = your_value, linetype = "dashed", color = "#6F3679")+#棕色+
+  geom_smooth(aes(x = time, y = value), method = "lm", se = FALSE, color = "red")+scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+                                                                                               date_labels = "%Y")+
+  theme(axis.title.x = element_blank(),  # 去除横轴标签
+        axis.title.y = element_blank())  # 去除纵轴标签
+
+# 添加标题
+p <- p + labs(title = "DT")
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+  theme(axis.ticks = element_line(size = 1.1))
+p
+
+
+print(p)
+datong_dis<-p
+library(patchwork)
+# 将两个图形组合在一起
+combined_plot <- wrap_plots(zhimenda_dis,luning_dis,cuntan_dis,yichang_dis,hankou_dis, datong_dis,nrow = 3)
+
+# 显示拼图
+print(combined_plot)
+
+
+
+
+
+# 保存为高清图片
+ggsave("plot_sta6_dis_new.png", dpi = 600, width = 12, height = 6, units = "in")
+
+
+
+
+
+
