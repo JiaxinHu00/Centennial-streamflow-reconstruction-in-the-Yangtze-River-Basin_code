@@ -1,0 +1,144 @@
+rm(list = ls())
+load("C:/Users/JX/Desktop/长江流域百年径流重建/年均值/sta6_y_mean.RData")
+sta6_y_dis<-sta6_y_mean
+
+# 使用apply函数计算每列的z-score
+data_zscore <- apply(sta6_y_dis, 2, function(x) {
+  (x - mean(x)) / sd(x)
+})
+
+# 打印结果
+print(data_zscore)
+colnames(data_zscore)<-factor(c("ZMD","LN","CT","YC","HK","DT"))
+
+
+# dates <- seq(as.Date("1901-01-01",format='%Y-%m-%d'), as.Date("2021-12-01",format='%Y-%m-%d'), by = "year")
+year <- 1901:2021
+heat.data<-data.frame(year,data_zscore)
+long_heat.data<- reshape2::melt(heat.data, id.vars = "year")
+
+# long_heat.data<-data.frame(
+#   stations=as.numeric(ts_heat.data),
+#   year= as.numeric(floor(time(ts_heat.data))),
+#   z_score= as.numeric(cycle(ts_heat.data))
+# )
+###   创建时间序列   ###
+
+# ts_heat.data <- ts(data_zscore,
+#              start = 1901,
+#              end = 2021,
+#              frequency = 1) 
+# plot(ts_heat.data)
+# 定义变量的顺序
+variable_order <- rev(levels(long_heat.data$variable))
+
+# 将变量转换为有序因子
+long_heat.data$variable <- factor(long_heat.data$variable, levels = variable_order)
+# 将数据从宽格式转换为长格式
+
+# 转置数据矩阵
+
+
+# # 将 y 变量转换为因子，并指定因子水平顺序
+# last_data$Index <- factor(data_zscore$Index, levels = unique(last_data$Index))
+# transposed_data_matrix <- t(data_zscore)# 新建一个设备，并设置宽度和高度
+###   plan3   ###
+
+library(RColorBrewer)
+
+library(ggplot2)
+colors<-brewer.pal(11,"RdBu")
+
+heat.plot <- ggplot(long_heat.data, aes(x = year, y = variable, fill = value)) +
+  geom_tile() +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(1901, 2021, by = 20)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_fill_gradientn(colours = colors, limits = c(-4, 4)) +
+  theme(axis.line = element_line(color = "black")) +
+  xlab(NULL) +
+  ylab(NULL) +
+  labs(fill = NULL )+
+  theme(legend.key.size = unit(1, "lines"))
+
+heat.plot
+
+data_zscore_df<-data.frame(data_zscore)
+###20年低通滤波###
+ZMD <- pass.filt(data_zscore_df$ZMD, W=0.05, type=c("low"), method="Butterworth")
+LN  <- pass.filt(data_zscore_df$LN, W=0.05, type="low", method="Butterworth")
+CT  <- pass.filt(data_zscore_df$CT, W=0.05, type="low", method="Butterworth")
+YC  <- pass.filt(data_zscore_df$YC, W=0.05, type="low", method="Butterworth")
+HK  <- pass.filt(data_zscore_df$HK, W=0.05, type="low", method="Butterworth")
+DT  <- pass.filt(data_zscore_df$DT, W=0.05, type="low", method="Butterworth")
+
+df_lowpass<-data.frame(ZMD,LN,CT,YC,HK,DT)
+
+data_zscore<-df_lowpass
+
+
+year <- 1901:2021
+heat.data<-data.frame(year,data_zscore)
+long_heat.data<- reshape2::melt(heat.data, id.vars = "year")
+
+# long_heat.data<-data.frame(
+#   stations=as.numeric(ts_heat.data),
+#   year= as.numeric(floor(time(ts_heat.data))),
+#   z_score= as.numeric(cycle(ts_heat.data))
+# )
+###   创建时间序列   ###
+
+# ts_heat.data <- ts(data_zscore,
+#              start = 1901,
+#              end = 2021,
+#              frequency = 1) 
+# plot(ts_heat.data)
+# 定义变量的顺序
+variable_order <- rev(levels(long_heat.data$variable))
+
+# 将变量转换为有序因子
+long_heat.data$variable <- factor(long_heat.data$variable, levels = variable_order)
+# 将数据从宽格式转换为长格式
+
+# 转置数据矩阵
+
+
+# # 将 y 变量转换为因子，并指定因子水平顺序
+# last_data$Index <- factor(data_zscore$Index, levels = unique(last_data$Index))
+# transposed_data_matrix <- t(data_zscore)# 新建一个设备，并设置宽度和高度
+###   plan3   ###
+
+library(RColorBrewer)
+library(RColorBrewer)
+
+colors<-brewer.pal(11,"RdBu")
+# 创建一个自定义的红白蓝渐变色调
+# 创建一个饱和度高的红白蓝渐变色调
+red_white_blue_palette <- colorRampPalette(c("#FF0000", "#FFFFFF", "#0000FF"), space = "rgb")(11)
+
+# 输出结果
+colors<-red_white_blue_palette
+
+
+# barplot(c(1:6),col = brewer.pal(11,"RdBu")[5:8])  colors<-brewer.pal(11,"RdBu")[3:8]
+heat.plot <- ggplot(long_heat.data, aes(x = year, y = variable, fill = value)) +
+  geom_tile() +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(1901, 2021, by = 20)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_fill_gradientn(colours = colors, limits = c(-4, 4)) +
+  theme(axis.line = element_line(color = "black")) +
+  xlab(NULL) +
+  ylab(NULL) +
+  labs(fill = NULL )+
+  theme(legend.key.size = unit(1, "lines"))
+
+heat.plot
+
+
+#####   "C:\Users\JX\Desktop\长江流域百年径流重建\图片\fig6a.png"
+# 保存图像
+ggsave(heat.plot,
+       filename = "C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig4_lowpass.png", 
+       width = 10,
+       height = 2.6,
+       dpi = 2000)
+
