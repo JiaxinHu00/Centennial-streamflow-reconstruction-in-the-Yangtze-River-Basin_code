@@ -1,0 +1,233 @@
+rm(list = ls())
+# 文件路径
+
+# 如果是用 magrittr 包
+library(magrittr)
+
+# 如果是用 dplyr 包
+library(dplyr)
+
+file_paths <- c(
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_ENSO_minus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_ENSO_plus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_IOD_minus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_IOD_plus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_NAO_minus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_NAO_plus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_PDO_minus.csv",
+  "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比/column_means_PDO_plus.csv"
+)
+
+# 读取文件并存储到一个列表中
+file_data <- lapply(file_paths, read.csv)
+
+# 访问列表中的数据框（以第一个文件为例）
+first_file_data <- file_data[[1]]
+View(first_file_data)
+use_data<-first_file_data[,-c(1,2)]
+use_data
+use_data<-use_data-1
+use_data_1 <- use_data %>% mutate(status="La Nina")
+colnames(use_data_1)<-c("ZMD","LN","CT","YC","HK","DT","status") 
+use_data_1
+
+
+
+####  读取第二个文件   ###
+
+
+# 访问列表中的数据框（以第一个文件为例）
+second_file_data <- file_data[[2]]
+
+second_use_data<-second_file_data[,-c(1,2)]
+
+second_use_data<-second_use_data-1
+second_use_data_1 <- second_use_data %>% mutate(status="El Nino")
+colnames(second_use_data_1 )<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+ENSO_use_bind <- bind_rows(second_use_data_1,use_data_1)
+ENSO_use_bind_plot <- reshape2::melt(ENSO_use_bind ,id="status")
+
+library(ggplot2)
+p1<-ggplot(ENSO_use_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_col(position = 'dodge', width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c("La Nina" = "lightblue","El Nino" = "red"))+
+  # scale_y_continuous(breaks = seq(-0.15, 0.15, by = 0.15))+
+  coord_cartesian(ylim = c(-0.15,0.15))+theme_bw()+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )+
+  geom_hline(yintercept = 0, linetype = "solid", color = "black")+
+  theme(legend.position = c(0.73,0.8698))
+# +
+#   theme(legend.position = "none")
+
+
+library(ggplot2)
+library(dplyr)
+
+
+
+
+
+
+
+
+
+
+
+#################   NAO    ###########################
+# 访问列表中的数据框（以第一个文件为例）
+first_file_data <- file_data[[5]]
+View(first_file_data)
+use_data<-first_file_data[,-c(1,2)]
+use_data<-use_data-1
+
+use_data_1 <- use_data %>% mutate(status="Negative NAO")
+colnames(use_data_1)<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+
+
+
+####  读取第二个文件   ###
+
+
+# 访问列表中的数据框（以第一个文件为例）
+second_file_data <- file_data[[6]]
+
+second_use_data<-second_file_data[,-c(1,2)]
+second_use_data<-second_use_data-1
+
+second_use_data_1 <- second_use_data %>% mutate(status="Positive NAO")
+colnames(second_use_data_1 )<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+ENSO_use_bind <- bind_rows(second_use_data_1,use_data_1)
+ENSO_use_bind_plot <- reshape2::melt(ENSO_use_bind ,id="status")
+
+library(ggplot2)
+p3<-ggplot(ENSO_use_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_col(position = 'dodge', width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c( "Positive NAO"= "lightblue", "Negative NAO"= "red"))+
+  # scale_y_continuous(breaks = seq(-0.15, 0.15, by = 0.05))+
+  coord_cartesian(ylim = c(-0.15,0.15))+theme_bw()+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )+
+  geom_hline(yintercept = 0, linetype = "solid", color = "black")+
+  theme(legend.position = c(0.73,0.8698))
+
+
+
+#################   PDO    ###########################
+# 访问列表中的数据框（以第一个文件为例）
+first_file_data <- file_data[[7]]
+View(first_file_data)
+use_data<-first_file_data[,-c(1,2)]
+use_data
+use_data<-use_data-1
+use_data_1 <- use_data %>% mutate(status="Cold PDO")
+colnames(use_data_1)<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+
+
+
+####  读取第二个文件   ###
+
+
+# 访问列表中的数据框（以第一个文件为例）
+second_file_data <- file_data[[8]]
+
+second_use_data<-second_file_data[,-c(1,2)]
+
+second_use_data<-second_use_data-1
+second_use_data_1 <- second_use_data %>% mutate(status="Warm PDO")
+colnames(second_use_data_1 )<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+ENSO_use_bind <- bind_rows(second_use_data_1,use_data_1)
+ENSO_use_bind_plot <- reshape2::melt(ENSO_use_bind ,id="status")
+
+library(ggplot2)
+p2<-ggplot(ENSO_use_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_col(position = 'dodge', width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c( "Cold PDO"= "red","Warm PDO" = "lightblue"))+
+  # scale_y_continuous(breaks = seq(-1, 4, by = 0.5))+
+  coord_cartesian(ylim = c(-0.15,0.15))+theme_bw()+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )+
+  geom_hline(yintercept = 0, linetype = "solid", color = "black")+
+  theme(legend.position = c(0.73,0.8698))
+# theme(legend.position = "none")
+
+
+
+#################   IOD    ###########################
+# 访问列表中的数据框（以第一个文件为例）
+first_file_data <- file_data[[3]]
+View(first_file_data)
+use_data<-first_file_data[,-c(1,2)]
+use_data<-use_data-1
+
+use_data_1 <- use_data %>% mutate(status="Negative IOD")
+colnames(use_data_1)<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+
+
+
+####  读取第二个文件   ###
+
+
+# 访问列表中的数据框（以第一个文件为例）
+second_file_data <- file_data[[4]]
+
+second_use_data<-second_file_data[,-c(1,2)]
+
+second_use_data<-second_use_data-1
+second_use_data_1 <- second_use_data %>% mutate(status="Positive IOD")
+colnames(second_use_data_1 )<-c("ZMD","LN","CT","YC","HK","DT","status") 
+
+ENSO_use_bind <- bind_rows(second_use_data_1,use_data_1)
+ENSO_use_bind_plot <- reshape2::melt(ENSO_use_bind ,id="status")
+
+library(ggplot2)
+p4<-ggplot(ENSO_use_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_col(position = 'dodge', width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c( "Positive IOD"= "lightblue","Negative IOD" = "red"))+
+  # scale_y_continuous(breaks = seq(-1, 4, by = 1))+
+  coord_cartesian(ylim = c(-0.15,0.15))+theme_bw()+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )+
+  geom_hline(yintercept = 0, linetype = "solid", color = "black")+
+  theme(legend.position = c(0.73,0.8698))
+
+library(patchwork)
+
+p1+p2+p3+p4
+
+ggsave("C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig8.png", dpi = 600, width = 7, height =5, units = "in",limitsize = FALSE)
+
