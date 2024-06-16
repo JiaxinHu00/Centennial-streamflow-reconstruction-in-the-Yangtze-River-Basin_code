@@ -1,0 +1,469 @@
+
+rm(list = ls())
+
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/zhimenda时间序列.RData")
+ZMD<-dis_all
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/luning时间序列.RData")
+LN<-dis_all
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/cuntan时间序列.RData")
+CT<-dis_all
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/yichang时间序列.RData")
+YC<-dis_all
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/hankou时间序列.RData")
+HK<-dis_all
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/datong时间序列.RData")
+DT<-dis_all
+
+
+
+nino3.4<-read.csv("C:/Users/JX/Desktop/气象数据/nino3.4m.csv")
+load("C:/Users/JX/Desktop/气象数据/pdom.RData")
+load("C:/Users/JX/Desktop/气象数据/naom.RData")
+load("C:/Users/JX/Desktop/气象数据/iodm.RData")
+
+
+#创建时间
+dates <- seq(as.Date("1901-01-01",format='%Y-%m-%d'), as.Date("2021-12-01",format='%Y-%m-%d'), by = "month")
+DATE<-dates
+
+ENSO<-nino3.4$value
+PDO<-pdom$value
+NAO<-naom$value
+IOD<-iodm$value
+
+ZMD<-ZMD$`df[, 1]`
+LN<-LN$`df[, 1]`
+CT<-CT$`df[, 1]`
+YC<-YC$`df[, 1]`
+HK<-HK$`df[, 1]`
+DT<-DT$`df[, 1]`
+
+climate_dis_df<-data.frame(DATE,ENSO,PDO,NAO,IOD,ZMD,LN,CT,YC,HK,DT)
+View(climate_dis_df)
+
+# climate_dis_df[,6:11]<-scale(climate_dis_df[,6:11])
+
+# 计算复合比 #
+
+# 计算每列平均
+mean_ZMD <- mean(climate_dis_df$ZMD, na.rm = TRUE)
+mean_LN <- mean(climate_dis_df$LN, na.rm = TRUE)
+mean_CT <- mean(climate_dis_df$CT, na.rm = TRUE)
+mean_YC <- mean(climate_dis_df$YC, na.rm = TRUE)
+mean_HK <- mean(climate_dis_df$HK, na.rm = TRUE)
+mean_DT <- mean(climate_dis_df$DT, na.rm = TRUE)
+
+climate_dis_df$ZMD_ratio <- climate_dis_df$ZMD/mean_ZMD
+climate_dis_df$LN_ratio <- climate_dis_df$LN / mean_LN
+climate_dis_df$CT_ratio <- climate_dis_df$CT / mean_CT
+climate_dis_df$YC_ratio <- climate_dis_df$YC / mean_YC
+climate_dis_df$HK_ratio <- climate_dis_df$HK / mean_HK
+climate_dis_df$DT_ratio <- climate_dis_df$DT / mean_DT
+
+
+
+View(climate_dis_df)
+climate_dis_df_copy<-climate_dis_df
+
+
+climate_dis_df_copy<-climate_dis_df
+View(climate_dis_df_copy[,-c(1,6:11)])
+# # 将数据从宽格式转换为长格式
+
+View(climate_dis_df_copy)
+climate_data<-climate_dis_df_copy[,-c(6:11)]
+View(climate_data)
+
+
+#####    enso     ######
+
+
+ENSO_plus <- climate_data[climate_data$ENSO > 0.5, ]
+ENSO_BOX_PLUS<-ENSO_plus[,c(1,6:11)]
+
+ENSO_minus <- climate_data[climate_data$ENSO < -0.5, ]
+ENSO_BOX_MINUS<-ENSO_minus[,c(1,6:11)]
+
+colnames(ENSO_BOX_PLUS) <-c("DATE","ZMD+","LN+","CT+","YC+","HK+","DT+") 
+colnames(ENSO_BOX_MINUS) <-c("DATE","ZMD-","LN-","CT-","YC-","HK-","DT-") 
+
+
+###   PDO   ###
+
+PDO_plus <- climate_data[climate_data$PDO > 0, ]
+PDO_BOX_PLUS<-PDO_plus[,c(1,6:11)]
+
+PDO_minus <- climate_data[climate_data$PDO < -0, ]
+PDO_BOX_MINUS<-PDO_minus[,c(1,6:11)]
+
+colnames(PDO_BOX_PLUS) <-c("DATE","ZMD+","LN+","CT+","YC+","HK+","DT+") 
+colnames(PDO_BOX_MINUS) <-c("DATE","ZMD-","LN-","CT-","YC-","HK-","DT-") 
+
+
+###   NAO   ###
+NAO_plus <- climate_data[climate_data$NAO > 0, ]
+NAO_BOX_PLUS<-NAO_plus[,c(1,6:11)]
+
+NAO_minus <- climate_data[climate_data$NAO < -0, ]
+NAO_BOX_MINUS<-NAO_minus[,c(1,6:11)]
+
+colnames(NAO_BOX_PLUS) <-c("DATE","ZMD+","LN+","CT+","YC+","HK+","DT+") 
+colnames(NAO_BOX_MINUS) <-c("DATE","ZMD-","LN-","CT-","YC-","HK-","DT-") 
+
+
+#####    iod    ######
+
+
+# 根据ENSO值的正负将climate_dis_df按行分为两类
+IOD_plus <- climate_data[climate_data$IOD > 0, ]
+IOD_BOX_PLUS<-IOD_plus[,c(1,6:11)]
+
+IOD_minus <- climate_data[climate_data$IOD < -0, ]
+IOD_BOX_MINUS<-IOD_minus[,c(1,6:11)]
+
+colnames(IOD_BOX_PLUS) <-c("DATE","ZMD+","LN+","CT+","YC+","HK+","DT+") 
+colnames(IOD_BOX_MINUS) <-c("DATE","ZMD-","LN-","CT-","YC-","HK-","DT-") 
+
+###   计算每列的平均值   ###
+
+###   enso+   ###
+want_insert<-ENSO_BOX_PLUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_ENSO<-data.frame(t(column_means))
+colnames(column_means_ENSO)<-colnames(want_data)
+column_means_ENSO_plus<-cbind("ENSO+",column_means_ENSO)
+
+###   enso-   ###
+want_insert<-ENSO_BOX_MINUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_ENSO<-data.frame(t(column_means))
+colnames(column_means_ENSO)<-colnames(want_data)
+column_means_ENSO_minus<-cbind("ENSO-",column_means_ENSO)
+
+
+###   pdo+   ###
+want_insert<-PDO_BOX_PLUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_PDO<-data.frame(t(column_means))
+colnames(column_means_PDO)<-colnames(want_data)
+column_means_PDO_plus<-cbind("PDO+",column_means_PDO)
+
+###   pdo-   ###
+want_insert<-PDO_BOX_MINUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_PDO<-data.frame(t(column_means))
+colnames(column_means_PDO)<-colnames(want_data)
+column_means_PDO_minus<-cbind("PDO-",column_means_PDO)
+
+
+
+
+###   nao+   ###
+want_insert<-NAO_BOX_PLUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_NAO<-data.frame(t(column_means))
+colnames(column_means_NAO)<-colnames(want_data)
+column_means_NAO_plus<-cbind("NAO+",column_means_NAO)
+
+###   nao-   ###
+want_insert<-NAO_BOX_MINUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_NAO<-data.frame(t(column_means))
+colnames(column_means_NAO)<-colnames(want_data)
+column_means_NAO_minus<-cbind("NAO-",column_means_NAO)
+
+
+
+
+###   iod+   ###
+want_insert<-IOD_BOX_PLUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_IOD<-data.frame(t(column_means))
+colnames(column_means_IOD)<-colnames(want_data)
+column_means_IOD_plus<-cbind("IOD+",column_means_IOD)
+
+###   iod-   ###
+want_insert<-IOD_BOX_MINUS[,-1]
+
+want_data<-want_insert
+column_means <- vector("numeric", length = ncol(want_data))  # 创建一个空向量存储平均值
+for (i in 1:ncol(want_data)) {
+  column_means[i] <- mean(want_data[, i])
+}
+column_means_IOD<-data.frame(t(column_means))
+colnames(column_means_IOD)<-colnames(want_data)
+column_means_IOD_minus<-cbind("IOD-",column_means_IOD)
+
+
+###  合并数据  ###  应该是错的吧
+# ENSO_bind<-cbind(ENSO_BOX_PLUS,ENSO_BOX_MINUS[,-1])
+
+
+####    数据转化为长格式    ####
+
+climate_dis_df_copy<-climate_dis_df
+climate_dis_df_copy[,c(1,6:11)]
+# # 将数据从宽格式转换为长格式
+ENSO_BOX_PLUS_data_long <- reshape2::melt(ENSO_BOX_PLUS,id=1 )
+
+View(ENSO_BOX_PLUS_data_long)
+
+
+
+
+
+library(ggplot2)
+ggplot(ENSO_BOX_PLUS_data_long,aes(x=variable,y=value))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot()+
+  scale_fill_gradient(low = "lightblue",high = "red",limits=c())+
+  scale_y_continuous(breaks = seq(-1, 4, by = 0.5))+
+  stat_summary(fun.y = "mean",geom="pointrange",shape=23,size=1,fill="white")
+View(empty_df)
+
+
+library(dplyr)
+
+###   bind   ###
+impact_of_climate<-bind_rows(column_means_ENSO_plus[,2:7],column_means_ENSO_minus[,2:7],
+                             column_means_PDO_plus[,2:7],column_means_PDO_minus[,2:7],
+                             column_means_NAO_plus[,2:7],column_means_NAO_minus[,2:7],
+                             column_means_IOD_plus[,2:7],column_means_IOD_minus[,2:7])
+# "C:/Users/JX/Desktop/长江流域百年径流重建/影响_复合比"
+
+
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(patchwork)
+
+# ENSO_plus1 <- ENSO_plus %>% filter(>0.5)
+ENSO_plus_1 <- ENSO_BOX_PLUS %>% mutate(status="El Nino")
+
+# data2 <- ENSO_plus %>% filter(时间>ymd('2022-07-16'))
+ENSO_minus_1 <- ENSO_BOX_MINUS %>% mutate(status="La Nina")
+
+
+
+colnames(ENSO_plus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+colnames(ENSO_minus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+# ENSO_minus_1
+ENSO_bind <- bind_rows(ENSO_plus_1,ENSO_minus_1)
+
+
+
+colnames(ENSO_bind)<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+
+# # 将数据从宽格式转换为长格式
+ENSO_bind_plot <- reshape2::melt(ENSO_bind[,-1],id="status")
+
+
+
+library(ggplot2)
+p1<-ggplot(ENSO_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot(outlier.shape = NA, width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c("La Nina" = "lightblue","El Nino" = "red"))+
+  scale_y_continuous(breaks = seq(-1, 4, by = 1))+theme_bw()+
+  theme(legend.position = c(0.73,0.8698))+
+  coord_cartesian(ylim = c(0, 4)) +
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank()  ) 
+# + 
+#         geom_hline(yintercept = 1, linetype = "dashed", color = "black")
+#    # 去除图例标题)   # 去除 y 轴标题)+
+
+# 添加坐标轴线条
+
+####   添加误差棒（错误）     ####
+# +
+#   geom_errorbar(
+#     aes(ymin = value - sd(value), ymax = value + sd(value)),
+#     width = 0.2,  # 调整误差棒的宽度
+#     position = position_dodge(0.9)  # 按组分开显示误差棒
+#   ) 
+# +
+#   stat_summary(fun.y = "mean",geom="pointrange",shape=23,size=1,fill="white")
+
+
+
+
+
+###   #################   NAO               ################## ###
+
+# NAO_plus1 <- NAO_plus %>% filter(>0.5)
+NAO_plus_1 <- NAO_BOX_PLUS %>% mutate(status="Positive NAO")
+
+# data2 <- NAO_plus %>% filter(时间>ymd('2022-07-16'))
+NAO_minus_1 <- NAO_BOX_MINUS %>% mutate(status="Negative NAO")
+colnames(NAO_plus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+colnames(NAO_minus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+NAO_bind <- bind_rows(NAO_plus_1,NAO_minus_1)
+
+
+
+colnames(NAO_bind)<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+
+# # 将数据从宽格式转换为长格式
+NAO_bind_plot <- reshape2::melt(NAO_bind[,-1],id="status")
+
+
+
+
+p3<-ggplot(NAO_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot(outlier.shape = NA, width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c( "Negative NAO"= "red", "Positive NAO"= "lightblue"))+
+  scale_y_continuous(breaks = seq(-1, 4, by = 1))+theme_bw()+
+  theme(legend.position = c(0.73,0.8698))+
+  coord_cartesian(ylim = c(0, 4))+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank()   ) 
+# +
+# geom_hline(yintercept = 1, linetype = "dashed", color = "black")
+# 去除图例标题 )  # 去除 y 轴标题)  # 添加坐标轴线条
+
+
+
+
+
+
+#$#################3    PDO     ###########################
+# IOD_plus1 <- IOD_plus %>% filter(>0.5)
+PDO_plus_1 <- PDO_BOX_PLUS %>% mutate(status="Cold PDO")
+
+# data2 <- IOD_plus %>% filter(时间>ymd('2022-07-16'))
+PDO_minus_1 <- PDO_BOX_MINUS %>% mutate(status="Warm PDO")
+colnames(PDO_plus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+colnames(PDO_minus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+PDO_bind <- bind_rows(PDO_plus_1,PDO_minus_1)
+PDO_plus_1
+PDO_BOX_PLUS
+
+colnames(PDO_bind)<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+
+# # 将数据从宽格式转换为长格式
+PDO_bind_plot <- reshape2::melt(PDO_bind[,-1],id="status")
+p2<-ggplot(PDO_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot(outlier.shape = NA, width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c("Cold PDO" ="red" ,"Warm PDO" = "lightblue"))+
+  scale_y_continuous(breaks = seq(-1, 4, by = 1))+theme_bw()+
+  theme(legend.position = c(0.73,0.8698))+
+  coord_cartesian(ylim = c(0, 4))+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank()  ) 
+# + 
+#         geom_hline(yintercept = 1, linetype = "dashed", color = "black")
+# 去除图例标题 )  # 去除 y 轴标题)  # 添加坐标轴线条
+
+
+
+
+
+
+
+##########################    IOD    #############################
+
+
+
+
+
+# IOD_plus1 <- IOD_plus %>% filter(>0.5)
+IOD_plus_1 <- IOD_BOX_PLUS %>% mutate(status="Positive IOD")
+
+# data2 <- IOD_plus %>% filter(时间>ymd('2022-07-16'))
+IOD_minus_1 <- IOD_BOX_MINUS %>% mutate(status="Negative IOD")
+colnames(IOD_plus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+colnames(IOD_minus_1 )<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+IOD_bind <- bind_rows(IOD_plus_1,IOD_minus_1)
+IOD_plus_1
+IOD_BOX_PLUS
+
+colnames(IOD_bind)<-c("DATE","ZMD","LN","CT","YC","HK","DT","status") 
+
+# # 将数据从宽格式转换为长格式
+IOD_bind_plot <- reshape2::melt(IOD_bind[,-1],id="status")
+
+
+
+p4<-ggplot(IOD_bind_plot,aes(x=variable,y=value,fill= status))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot(outlier.shape = NA, width = 0.5)+   # 取消异常值的显示
+  scale_fill_manual(values = c("Positive IOD" = "lightblue","Negative IOD" = "red"))+
+  scale_y_continuous(breaks = seq(-1, 4, by = 1))+theme_bw()+
+  theme(legend.position = c(0.73,0.8698))+
+  coord_cartesian(ylim = c(0, 4))+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )
+# +
+#         geom_hline(yintercept = 1, linetype = "dashed", color = "black")
+
+# +theme(axis.text = element_text(size = 12))+
+#   theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 10))+
+#   theme(axis.ticks = element_line(size = 1.1))
+
+# 去除图例标题)    # 去除 y 轴标题 # 添加坐标轴线条
+p1+p2+p3+p4
+####    不同相位下径流的变化有明显不同   ####
+# 保存为高清图片
+ggsave("C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig8a.png", dpi = 600, width = 7, height =5, units = "in",limitsize = FALSE)
+
