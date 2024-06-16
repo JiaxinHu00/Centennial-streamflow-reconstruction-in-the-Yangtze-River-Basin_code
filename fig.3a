@@ -1,0 +1,228 @@
+rm(list = ls())
+load("C:/Users/JX/Desktop/长江流域百年径流重建/年均值/sta6_y_mean.RData")
+# # 创建一个示例数据框
+# df <- data.frame(matrix(1:12, ncol = 6))
+colnames(sta6_y_mean) <- paste0("mean", 1:6)
+# 查看修改后的列名
+print(colnames(sta6_y_mean))
+station_of_6_y_mean_dis<-sta6_y_mean
+mean_of_1 <- mean(station_of_6_y_mean_dis$mean1)
+mean_of_2 <- mean(station_of_6_y_mean_dis$mean2)
+mean_of_3 <- mean(station_of_6_y_mean_dis$mean3)
+mean_of_4 <- mean(station_of_6_y_mean_dis$mean4)
+mean_of_5 <- mean(station_of_6_y_mean_dis$mean5)
+mean_of_6 <- mean(station_of_6_y_mean_dis$mean6)
+
+# sd_flow <- sd(data$Flow)
+
+
+
+sd_of_1 <- sd(station_of_6_y_mean_dis$mean1)
+sd_of_2 <- sd(station_of_6_y_mean_dis$mean2)
+sd_of_3 <- sd(station_of_6_y_mean_dis$mean3)
+sd_of_4 <- sd(station_of_6_y_mean_dis$mean4)
+sd_of_5 <- sd(station_of_6_y_mean_dis$mean5)
+sd_of_6 <- sd(station_of_6_y_mean_dis$mean6)
+
+threshold_dh_1<-mean_of_1 + c(-1, 1) * sd_of_1
+threshold_dh_2<-mean_of_2 + c(-1, 1) * sd_of_2
+threshold_dh_3<-mean_of_3 + c(-1, 1) * sd_of_3
+threshold_dh_4<-mean_of_4 + c(-1, 1) * sd_of_4
+threshold_dh_5<-mean_of_5 + c(-1, 1) * sd_of_5
+threshold_dh_6<-mean_of_6 + c(-1, 1) * sd_of_6
+
+#1
+sta1_w<-table(station_of_6_y_mean_dis$mean1>threshold_dh_1[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta1_d<-table(station_of_6_y_mean_dis$mean1<threshold_dh_1[1])
+
+#2
+sta2_w<-table(station_of_6_y_mean_dis$mean2>threshold_dh_2[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta2_d<-table(station_of_6_y_mean_dis$mean2<threshold_dh_2[1])
+
+#3
+sta3_w<-table(station_of_6_y_mean_dis$mean3>threshold_dh_3[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta3_d<-table(station_of_6_y_mean_dis$mean3<threshold_dh_3[1])
+
+#4
+sta4_w<-table(station_of_6_y_mean_dis$mean4>threshold_dh_4[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta4_d<-table(station_of_6_y_mean_dis$mean4<threshold_dh_4[1])
+
+#5
+sta5_w<-table(station_of_6_y_mean_dis$mean5>threshold_dh_5[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta5_d<-table(station_of_6_y_mean_dis$mean5<threshold_dh_5[1])
+
+#6
+sta6_w<-table(station_of_6_y_mean_dis$mean6>threshold_dh_6[2])
+# station_of_6_y_mean_dis$mean1>threshold_dh_1[2]
+sta6_d<-table(station_of_6_y_mean_dis$mean6<threshold_dh_6[1])
+
+
+
+
+
+library(patchwork)
+
+threshold_dh_1
+# 创建映射列
+
+#
+mapping_1 <- ifelse(station_of_6_y_mean_dis$mean1 > threshold_dh_1[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean1 < threshold_dh_1[1], "drought",
+                           "normal"))
+
+#
+mapping_2 <- ifelse(station_of_6_y_mean_dis$mean2 > threshold_dh_2[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean2 < threshold_dh_2[1], "drought",
+                           "normal"))
+
+#
+mapping_3 <- ifelse(station_of_6_y_mean_dis$mean3 > threshold_dh_3[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean3 < threshold_dh_3[1], "drought",
+                           "normal"))
+
+#
+mapping_4 <- ifelse(station_of_6_y_mean_dis$mean4 > threshold_dh_4[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean4 < threshold_dh_4[1], "drought",
+                           "normal"))
+
+#
+mapping_5 <- ifelse(station_of_6_y_mean_dis$mean5 > threshold_dh_5[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean5 < threshold_dh_5[1], "drought",
+                           "normal"))
+
+#
+mapping_6 <- ifelse(station_of_6_y_mean_dis$mean6 > threshold_dh_6[2], "humidification",
+                    ifelse(station_of_6_y_mean_dis$mean6 < threshold_dh_6[1], "drought",
+                           "normal"))
+
+
+year <- 1901:2021
+
+# 将映射列添加到数据框
+yearly_d_w_n_sta6 <- data.frame(year, mapping_1,mapping_2,mapping_3,mapping_4,mapping_5,mapping_6)
+colnames(yearly_d_w_n_sta6)<-c("year","ZMD","LN","CT","YC","HK","DT")
+# write.csv(yearly_d_w_n_sta6,file = "C:/Users/JX/Desktop/yearly_d_w_n_sta6平均值+-方差.csv")
+
+
+library(ggplot2)
+#绘制热图
+# 创建数据框
+
+
+# 将数据从宽格式转换为长格式
+data_long <- reshape2::melt(yearly_d_w_n_sta6, id.vars = "year")
+data_long_variable_order <- rev(levels(data_long$variable))
+
+# 将变量转换为有序因子
+data_long$variable <- factor(data_long$variable, levels = data_long_variable_order)
+# 创建热图
+heat_of_extreme_dry_wet <- ggplot(data_long, aes(x =year , y = variable, fill = value)) +
+  geom_tile() +
+  # labs(title = "Climate Humidity Change ", x = "year", y = "station") +
+  xlab(NULL)+ylab(NULL)+
+  scale_fill_manual(values = c("normal" = "#F0FFFF", "humidification" = "#4DBBD5B2", "drought" = "#E64B35B2"),
+                    labels = c("Extreme dry", "Extreme wet","Normal" )) +
+  # theme_minimal() +"#4DBBD5B2","#E64B35B2"
+  guides(fill = guide_legend(title = NULL))+  # 修改图例标题+
+  # coord_fixed(ratio =9)  +
+  theme(axis.line = element_line(color = "black")) +
+  scale_x_continuous(expand = c(0, 0), limits=c(1901,2030),breaks = seq(1901, 2021, by = 20)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  labs(fill = NULL )
+heat_of_extreme_dry_wet<-heat_of_extreme_dry_wet+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        # axis.title.y = element_blank(),
+        # legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank())+theme(axis.text = element_text(size = 15))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 15))+
+  theme(axis.ticks = element_line(size = 1.1))
+heat_of_extreme_dry_wet_new_2<-heat_of_extreme_dry_wet+guides(fill=FALSE)
+
+
+# 保存图像
+ggsave(heat_of_extreme_dry_wet_new_2,
+       filename = "C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig6a.png", 
+       width = 10,
+       height = 3,
+       dpi = 600)
+
+# 设置比例，控制横向拉长和纵向缩短
+# write.csv(data_long,file = "C:/Users/JX/Desktop/yearly_d_w_n_sta6_data_long_sd.csv")   "#add8e6","#ff6a6a" 
+
+
+
+
+sta6_y_dis<-sta6_y_mean
+
+
+# 使用apply函数计算每列的z-score
+data_zscore <- apply(sta6_y_dis, 2, function(x) {
+  (x - mean(x)) / sd(x)
+})
+
+# 打印结果
+print(data_zscore)
+
+
+# 转置数据矩阵
+
+colnames(data_zscore)<-factor(c("ZMD","LN","CT","YC","HK","DT"))
+# 将 y 变量转换为因子，并指定因子水平顺序
+last_data$Index <- factor(data_zscore$Index, levels = unique(last_data$Index))
+transposed_data_matrix <- t(data_zscore)# 新建一个设备，并设置宽度和高度
+dev.new(width = 12, height = 6)
+# 定义颜色映射向量
+colors <- colorRampPalette(c("red","white", "blue"))(256)
+# 设置绘图参数，横向拉长两倍，纵向缩短一倍
+
+# 绘制热图
+heatmap(transposed_data_matrix, Colv = NA, scale = "none",col=colors,margins = c(15, 2))
+
+# 添加时间轴
+start_year <- 1901
+end_year <- 2021
+
+# 创建时间刻度标签
+time_labels <- seq(start_year, end_year)
+
+
+
+###### 月度 干湿变化（不显示极端值）热图######
+# 设置文件夹路径
+folder_path <- "C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建"
+
+# 列出文件夹中的所有 .rdata 文件
+rdata_files <- list.files(folder_path, pattern = "\\.RData$", full.names = TRUE)
+
+# 循环加载每个 .rdata 文件
+for (file in rdata_files) {
+  load(file)
+  # 这里可以对加载的数据进行进一步处理
+}
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/zhimenda时间序列.RData")
+zhimenda<-dis_all$`df[, 1]`
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/luning时间序列.RData")
+luning<-dis_all$`df[, 1]`
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/cuntan时间序列.RData")
+cuntan<-dis_all$`df[, 1]`
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/yichang时间序列.RData")
+yichang<-dis_all$`df[, 1]`
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/hankou时间序列.RData")
+hankou<-dis_all$`df[, 1]`
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/datong时间序列.RData")
+datong<-dis_all$`df[, 1]`
+sta6_m_dis<-data.frame(zhimenda,luning,cuntan,yichang,hankou,datong)
+save(sta6_m_dis,file = "C:/Users/JX/Desktop/长江流域百年径流重建/sta6_m_dis.RData")
+
+
+
+summary_6sta_logi<-read.csv("C:/Users/JX/Desktop/绘制堆积条形图数据.csv")
