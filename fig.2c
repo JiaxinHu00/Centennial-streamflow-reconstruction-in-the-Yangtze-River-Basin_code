@@ -1,1 +1,120 @@
 
+
+rm(list = ls())
+# pca_dis_ptpn<-read.csv("C:/Users/JX/Desktop/pca_dis_ptpn.csv")
+# # 计算均值和标准差
+# mean_y <- mean(pca_dis_ptpn$y)
+# sd_y <- sd(pca_dis_ptpn$y)
+# 
+# # 计算z-score
+# z_scores_y <- (pca_dis_ptpn$y - mean_y) / sd_y
+# 
+# # 打印结果
+# plot(z_scores_y )
+# plot(pca_dis_ptpn$y)
+# cor_dis_pre<-cor(pca_dis_ptpn$y,pca_dis_ptpn$x1)
+# cor_dis_tmp<-cor(pca_dis_ptpn$y,pca_dis_ptpn$x2)
+# cor_dis_pdsi<-cor(pca_dis_ptpn$y,pca_dis_ptpn$x3)
+# cor_dis_nino<-cor(pca_dis_ptpn$y,pca_dis_ptpn$x4)
+# 
+# 
+# 
+# library(dplyr)
+# library(zoo)
+# library(ggplot2)
+# library("gridExtra")
+# 
+# 
+# #创建时间
+# dates <- seq(as.Date("1901-01-01",format='%Y-%m-%d'), as.Date("2021-12-01",format='%Y-%m-%d'), by = "month")
+# #五年移动平均
+# monthly_moving_avg <- rollmean(x = z_scores_y, k =150 , fill = NA)
+# 
+# monthly_y <- data.frame(time = dates, value = z_scores_y, moving_avg = monthly_moving_avg)
+# 
+# pos=monthly_y$value>=0
+# m_y_y<-cbind(monthly_y,pos,monthly_moving_avg)
+# 
+# p<-ggplot(m_y_y, aes(x = time, y = value,fill=pos)) +
+#   geom_col(position  = "identity")+theme(legend.position = "right") +
+#   # geom_line(aes(x = time, y = moving_avg, colour = "Moving Average"))+
+#   # geom_line(aes(x = time, y = moving_avg, colour = "Moving Average"), size = 0.8) +  # 设置滑动平均线的粗细为2
+#   theme(legend.position = "none", panel.background = element_rect(fill = "transparent")) +
+#   theme(legend.position = "right", axis.line = element_line(), axis.title = element_text()) +
+#   # scale_fill_manual(values = c("#cceeff","#ffdddd"),guide=FALSE)+
+#   guides(fill = FALSE, colour = FALSE)+
+#   scale_x_date(expand = c(0,0),date_breaks = "20 years", limits = as.Date(c("1901-01-01", "2021-12-01")) ,# 10 年一个刻度
+#                date_labels = "%Y")+
+#   scale_fill_manual(values = c("#B09C85FF", "#00A087FF" )) +
+#   # scale_colour_manual(values = "gray")+# 设置滑动平均线的颜色为蓝色+
+#   xlab("year")+
+#   ylab("Z-score")
+# 
+# p<-p+theme(axis.text = element_text(size = 12))+
+#   theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 12))+
+#   theme(axis.ticks = element_line(size = 1.1))
+# p
+# scale_fill_manual(values = c("nrc")) 
+# 保存为高清图片
+# ggsave(filename = "C:/Users/JX/Desktop/Z-score_pc1_dis_m_10.26.png", dpi = 600, width = 10, height = 5, units = "in")
+# [1] "#E64B357F" "#4DBBD57F" "#00A0877F" "#3C54887F" "#F39B7F7F" "#8491B47F"
+# [7] "#91D1C27F" "#DC00007F" "#7E61487F" "#B09C857F"
+#可选择提取≤10种颜色，但可通过调节透明度产出不同明度的配色方案
+mycolor<-pal_npg("nrc", alpha = 1)(10) #提取8种颜色，透明度80%
+mycolor
+library("scales")
+show_col(pal_npg("nrc", alpha = 1)(10))
+mycolor
+
+library(ggsci)
+library(ggplot2)
+
+#查看此包帮助文档（共提供18种配色方案，点击名称即可跳转到对应配色说明及案例）
+vignette("ggsci")
+scale_color_palname()
+scale_color_npg()+scale_fill_npg()
+
+
+
+summary_6sta_logi<-read.csv("C:/Users/JX/Desktop/长江流域百年径流重建/绘制堆积条形图数据new.csv")
+
+
+
+# 将 x 变量转换为因子，并指定因子水平顺序
+summary_6sta_logi$stations <- factor(summary_6sta_logi$stations, levels = unique(summary_6sta_logi$stations))
+View(summary_6sta_logi)
+library(gcookbook)
+library(ggsci)
+mypal <- pal_npg("nrc", alpha = 0.7)(9)
+mypal
+
+library("scales")
+show_col(mypal)
+View(summary_6sta_logi)
+p<-ggplot(summary_6sta_logi,aes(x=stations,y=value,fill=logi))+
+  geom_col()+
+  scale_y_continuous(expand = c(0,0),limits = c(0, 1452), breaks = seq(0, 1452, by = 200) )+#++
+  scale_fill_manual(values = c( "#4DBBD5B2","#E64B35B2" ))+## 最新配色
+  guides(fill=FALSE)
+
+
+p<-p+  theme(axis.text = element_text(size = 12),
+             axis.line = element_line(size = 1.1),
+             axis.text.y = element_text(size = 12),
+             axis.ticks = element_line(size = 1.1),
+             panel.grid.major = element_blank(),  # 去除主要背景网格线
+             panel.grid.minor = element_blank())+xlab(NULL) +
+  ylab("Months")  # 修改y轴标题为"months"
+p<-p+ scale_color_lancet()+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        # axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )
+p
+
+ggsave(filename = "C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig5b.png",dpi = 600,width = 6,
+       height = 4)
