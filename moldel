@@ -1,0 +1,155 @@
+### zhimenda 4
+
+
+rm(list=ls())
+# 引入gbm包
+library(gbm)
+# # 设置随机数种子
+set.seed(123)
+# 
+# # 指定文件夹路径
+folder_path <- "C:/d/sta_27"
+# 
+# # 获取文件夹中的所有 .R 文件名
+file_names <- list.files(folder_path, pattern = "\\.RData$", full.names = TRUE)
+# 
+# # 循环加载每个 R 文件
+for (file in file_names) {
+  load(file)
+}
+# 
+# 
+jian_dis <- sta_27_dis$V4
+jian_dis_1901_2021 <- jian_dis[433:1884]
+jian_pre_1901_2021 <- sta_27_pre[, 4]
+jian_tmp_1901_2021 <- sta_27_tmp[, 4]
+jian_pdsi_1901_2021 <- sta_27_pdsi[, 4]
+# 
+jian_ml <- cbind(jian_dis_1901_2021, jian_pre_1901_2021, jian_tmp_1901_2021, jian_pdsi_1901_2021)
+
+# 将jian_ml转换为数据框
+jian_ml <- as.data.frame(jian_ml)
+# 创建一个包含缺失值的数据框
+df <- jian_ml
+
+# 使用is.na()函数获取包含缺失值的行
+rows_with_na <- which(apply(df, 1, function(x) any(is.na(x))))
+
+# 显示包含缺失值的行
+df[rows_with_na, ]
+
+# 去除数据框中包含缺失值的行
+clean_data <- na.omit(df)
+
+# 输出列名
+colnames(clean_data)
+
+# 设置自变量与因变量列名
+x_vars <- c("jian_pre_1901_2021", "jian_tmp_1901_2021", "jian_pdsi_1901_2021")
+y_var <- "jian_dis_1901_2021"
+
+
+
+# 随机划分训练集和测试集
+train_index <- sample(1:nrow(clean_data), size = nrow(clean_data) * 0.7, replace = FALSE) # 70%样本作为训练集
+tr_data <- clean_data[train_index,] # 训练集数据
+te_data <- clean_data[-train_index,] # 测试集数据
+
+cat("数据框中不包含缺失值。\n")
+
+#
+
+# 使用最优参数组合建立梯度提升树回归模型
+final_model <- gbm(
+  formula = as.formula(paste(y_var, paste(x_vars, collapse = "+"), sep = "~")),
+  data = clean_data,
+  distribution = "gaussian",
+  n.trees = 500,#best_params$n_trees,
+  interaction.depth = 5,#best_params$interaction.depth,
+  shrinkage = 0.01,
+  n.minobsinnode = 10
+)
+
+# 在测试集上进行预测
+predictions <- predict(final_model, newdata = te_data, n.trees = 500)
+
+library(hydroGOF)
+
+# 读入观测径流数据
+Qobs <- te_data[, 1]
+
+# 读入重建径流数据
+Qsim <- predictions
+
+NSE <- NSE(Qsim, Qobs)
+print(NSE)
+
+KGE <- KGE(Qsim, Qobs)
+print(KGE)
+
+r <- cor(Qsim, Qobs)
+print(r)
+
+SSR <- sum((Qsim - mean(Qobs))^2)
+SST <- sum((Qobs - mean(Qobs))^2)
+R2 <- SSR / SST
+print(R2)
+
+rmse <- sqrt(mean((Qobs - Qsim)^2))
+print(rmse)
+
+# 预测na_discharge值
+df_of_na_dis <- df[rows_with_na, ]
+recon_discharge <- predict(final_model, df_of_na_dis, n.trees = 500)
+recon_dis <- as.data.frame(recon_discharge)
+View(recon_dis)
+
+# 按行名合并数据框
+# merged_df <- merge(df1, df2, by = 0, all = TRUE)
+# rownames(merged_df) <- merged_df$Row.names
+# merged_df$Row.names <- NULL
+# 
+# print(merged_df)
+
+##插值
+# 创建示例数据框
+dis_original <- as.data.frame(df[, 1])
+original_df <- as.data.frame(dis_original)
+# 创建模拟值
+simulated_values <- recon_dis
+
+# 插入模拟值到原始数据中的空缺值
+for (i in 1:ncol(original_df)) {
+  original_df[is.na(original_df[, i]), i] <- simulated_values[i]
+}
+
+print(original_df)
+
+ym <- data.frame(year = rep(1901:2021, each = 12), month = rep(1:12, times = 121))
+# complete_datatest <- merge(data, all_combinations, by.x="year", by.y="month",  all.x = TRUE)
+# dis_all<-data.frame(years,averages_X1,averages_X2,averages_X3)
+dis_all <- cbind(ym, original_df)
+
+
+
+# 找到空值行的索引
+na_rows <- which(apply(jian_ml, 1, function(x) any(is.na(x))))
+
+print(na_rows)
+
+# 创建索引向量
+index <- na_rows
+recon_dis_plot <- dis_all[index,]
+
+
+
+# 保存时间序列 #
+
+ save(dis_all, file = "C:/Users/JX/Desktop/长江流域百年径流重建/主要站点径流重建/zhimenda时间序列.RData")
+
+
+
+
+
+
+
