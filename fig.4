@@ -1,0 +1,87 @@
+rm(list = ls())
+
+load("C:/Users/JX/Desktop/长江流域百年径流重建/WC/WC_nino3.4m.RData")
+load("C:/Users/JX/Desktop/长江流域百年径流重建/WC/WC_pdom.RData")
+load("C:/Users/JX/Desktop/长江流域百年径流重建/WC/WC_naom.RData")
+load("C:/Users/JX/Desktop/长江流域百年径流重建/WC/WC_iodm.RData")
+
+
+
+# 
+# load("C:/Users/JX/Desktop/气象数据/WC_of_ENSO_new.RData")
+# load("C:/Users/JX/Desktop/气象数据/WC_of_NAOm_new.RData")
+# load("C:/Users/JX/Desktop/气象数据/WC_of_PDOm_new.RData")
+# # load("C:/Users/JX/Desktop/气象数据/WC_of_soim.RData")
+# load("C:/Users/JX/Desktop/气象数据/WC_of_IODm_new.RData")
+
+library(WaveletComp)
+
+wc.image(WC_nino3.4m, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and ENSO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params=list(lab="", lab.line=3.5, label.digits=3))
+
+wc.image(WC_pdom, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and PDO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params=list(lab="", lab.line=3.5, label.digits=3))
+
+wc.image(WC_naom, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and NAO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params=list(lab="", lab.line=3.5, label.digits=3))
+
+wc.image(WC_iodm, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and IOD", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params=list(lab="", lab.line=3.5, label.digits=3))
+
+
+#### 修改图例后
+
+
+
+
+
+wc.image(WC_nino3.4m, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and ENSO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params = list(width=1.2, shrink = 0.9, mar = 5.1, 
+                              n.ticks = 6, 
+                              label.digits = 2, label.format = "f", 
+                              lab = NULL, lab.line = 2.5))
+
+wc.image(WC_pdom, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and PDO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params = list(width=1.2, shrink = 0.9, mar = 5.1, 
+                              n.ticks = 6, 
+                              label.digits = 2, label.format = "f", 
+                              lab = NULL, lab.line = 2.5))
+
+wc.image(WC_naom, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and NAO", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params = list(width=1.2, shrink = 0.9, mar = 5.1, 
+                              n.ticks = 6, 
+                              label.digits = 2, label.format = "f", 
+                              lab = NULL, lab.line = 2.5))
+
+wc.image(WC_iodm, which.image="wc", timelab="", periodlab="Period", 
+         main="WCA: PC1 and IOD", plot.arrow = FALSE,
+         color.palette = "rainbow(n.levels, start = 0, end = 0.7, s = 0.7)",
+         show.date=TRUE,
+         legend.params = list(width=1.2, shrink = 0.9, mar = 5.1, 
+                              n.ticks = 6, 
+                              label.digits = 2, label.format = "f", 
+                              lab = NULL, lab.line = 2.5))
+
+
+
