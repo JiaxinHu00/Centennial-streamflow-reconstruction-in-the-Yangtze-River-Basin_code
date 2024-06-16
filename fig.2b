@@ -1,0 +1,81 @@
+rm(list = ls())
+load("C:/Users/JX/Desktop/长江流域百年径流重建/主成分/pca_m_dis.RData")
+# 计算均值和标准差
+df<-data.frame(data)
+mean_y <- mean(data$PC1)
+sd_y <- sd(data$PC1)
+
+# 计算z-score
+z_scores_y <- (data$PC1 - mean_y) / sd_y
+
+
+
+df<-z_scores_y
+# View(df)
+
+library(tidyr)
+
+# 创建一个示例数据框
+data <- data.frame(
+  月份 = rep(1:12, length.out = 1452),  # 月份数据，假设为1到12循环
+  值 = df  # 假设的月度数据值，这里用随机数生成
+)
+df<-data
+# 创建一个空的数据框
+empty_df <- data.frame(matrix(ncol = 12, nrow = 121))
+
+# 给数据框添加列名
+colnames(empty_df) <- c("Col1", "Col2", "Col3", "Col4", "Col5", "Col6", "Col7", "Col8", "Col9", "Col10", "Col11", "Col12")
+
+
+for (i in 1:12) {
+  new_df <- df[df$月份 == i, ]
+  empty_df[,i]<-new_df[,2]
+}
+date<-1:121
+
+# 将列名修改为月份的缩写
+colnames(empty_df) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+can_enter<-cbind(date,empty_df)
+
+can_enter_data_long <- reshape2::melt(can_enter,id=1
+)
+
+
+pos=can_enter_data_long$value>=0
+m_y_y<-cbind(can_enter_data_long,pos)
+library(ggplot2)
+ggplot(can_enter_data_long,aes(x=variable,y=value))+
+  # geom_point(alpha=0.4)+
+  geom_boxplot()+
+  scale_fill_gradient(low = "lightblue",high = "red",limits=c())
+View(empty_df)
+
+
+p<-ggplot(m_y_y,aes(x=variable,y=value,colour = pos))+
+  # geom_point(alpha=0.4)+
+  geom_point(alpha=0.095,size = 4)+
+  scale_color_gradient(low = "lightblue",high = "red",limits=c())+
+  scale_color_manual(values = c("#E64B35B2", "#4DBBD5B2" ))+
+  ylab("Z-score")
+
+p<-p+theme(axis.text = element_text(size = 12))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 12))+
+  theme(axis.ticks = element_line(size = 1.1))+
+  theme(legend.position = "none")+
+  theme(axis.title.x=element_blank())+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        # axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )
+p
+
+
+# 使用ggsave保存图片
+ggsave("C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig5a.png", plot = p, width = 6, height = 4, units = "in", dpi = 600)
+
+
