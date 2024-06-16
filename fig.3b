@@ -1,0 +1,41 @@
+rm(list = ls())
+
+summary_6sta_logi<-read.csv("C:/Users/JX/Desktop/长江流域百年径流重建/绘制堆积条形图数据_极端干湿年分数_初代.csv")
+library(gcookbook)
+library(ggplot2)
+library(dplyr)
+ce <- summary_6sta_logi %>%
+  group_by(stations) %>%
+  mutate(label_y = cumsum(value) - 0.5 * value)
+p<-ggplot(ce,aes(x = stations,y = value,fill = logi)) +geom_col() +geom_text(aes(y = label_y, label = value), colour = "white", size = 10)+
+  scale_x_discrete(limits = c("ZMD+LN", "CT+YC", "HK+DT")) +
+  
+  scale_y_continuous(expand = c(0,0),limits = c(0, 85), breaks = seq(0, 80, by = 10) )+
+  # scale_fill_manual(values = c("#ffdddd","#cceeff"))+
+  scale_fill_discrete(guide=FALSE)+
+  scale_fill_manual(values = c("#4DBBD5B2","#E64B35B2" ), guide = FALSE)+#red# #ee3b3b#ff4040    #98f5ff
+  labs(x = "", y = "Years")  #"#add8e6","#ff6a6a"
+p<-p+theme(axis.text = element_text(size = 24))+
+  # theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  theme(axis.line = element_line(size = 1.1), axis.text = element_text(size = 24))+
+  theme(axis.ticks = element_line(size = 1.1))+
+  theme(legend.position = "none")+
+  theme(axis.title.x=element_blank())+
+  theme(panel.grid.major = element_blank(),  # 去除主要网格线
+        panel.grid.minor = element_blank(),  # 去除次要网格线
+        panel.background = element_blank(),  # 去除背景网格
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_blank(),  # 去除 x 轴标题
+        # axis.title.y = element_blank(),
+        legend.key.size = unit(0.3, "cm"),  # 修改图例大小
+        legend.title = element_blank() )
+# +
+#   scale_x_discrete(labels = c("Upper", "Middle", "Lower"))
+p
+
+ggsave("C:/Users/JX/Desktop/长江流域百年径流重建/图片/fig6b.png", plot = p, width = 4, height = 6, units = "in", dpi = 600)
+
+#b2dfee
+# scale_fill_manual(values = c("#cceeff","#ffdddd"))+
+# guides(fill=guide_legend(reverse = TRUE))
+
